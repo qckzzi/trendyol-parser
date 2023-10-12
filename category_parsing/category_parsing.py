@@ -20,5 +20,5 @@ def parse_category(url: str, headers: dict):
         marketplace_url = config.get('trendyol', 'domain')
 
         for product in products:
-            product_url = f'{marketplace_url}{product.get('url')}'
+            product_url = f'{marketplace_url}{product.get("url")}'
             parse_product(url=product_url, headers=headers)

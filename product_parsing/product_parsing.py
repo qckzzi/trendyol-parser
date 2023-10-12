@@ -15,12 +15,10 @@ def parse_product(url: str, headers: dict):
         json_object = json.loads(raw_json)
         product = json_object.get('product')
 
-        print(f'Товар {product.get('name')} найден.')
+        print(f'Товар {product.get("name")} найден.')
         send_product(product)
     else:
         print(f'Не найдено соответствие для url {url}.')
-
-    print('\n')
 
 
 def send_product(product):
@@ -35,7 +33,7 @@ def send_product(product):
         json=data,
     )
     if response.status_code == 201:
-        print(f'Товар {product.get('name')} успешно создан')
+        print(f'Товар {product.get("name")} успешно создан')
         product_id = response.json().get('id')
         for image_path in product.get('images'):
             marketplace_url = config.get('trendyol', 'content_domain')
@@ -43,19 +41,21 @@ def send_product(product):
             parse_image(image_url, product_id)
 
     else:
-        print(f'Ошибка создания товара {product.get('name')}\nSTATUS: {response.status_code}\n')
+        print(f'Ошибка создания товара {product.get("name")}\nSTATUS: {response.status_code}\n')
 
 
 def parse_image(url, product_id):
     get_image_response = requests.get(url)
-    data = dict(
-        image=get_image_response.content,
-        product=product_id,
-    )
+
+    with open('temp.jpg', 'wb') as file:
+        file.write(get_image_response.content)
+
     response = requests.post(
         config.get('markets_bridge', 'product_images_url'),
-        files=data,
+        files=dict(image=open('temp.jpg', 'rb')),
+        data=dict(product=product_id),
     )
+
     if response.status_code == 201:
         print(f'Изображение успешно создано.')
     else:
