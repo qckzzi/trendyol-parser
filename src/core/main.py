@@ -1,9 +1,17 @@
 #!/usr/bin/env python
 """Модуль запуска приложения."""
-from category_parsing.category_parsing import parse_category
-from core import config
-from product_parsing.product_parsing import parse_product
 import requests
+
+from src.category_parsing.category_parsing import (
+    parse_category,
+)
+from src.core import (
+    config,
+)
+from src.product_parsing.product_parsing import (
+    parse_product,
+)
+
 
 def main():
 

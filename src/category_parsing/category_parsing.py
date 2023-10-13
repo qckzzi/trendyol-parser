@@ -1,10 +1,14 @@
 import json
-
 import re
+
 import requests
 
-from core import config
-from product_parsing.product_parsing import parse_product
+from core import (
+    config,
+)
+from product_parsing.product_parsing import (
+    parse_product,
+)
 
 
 def parse_category(url: str, headers: dict):

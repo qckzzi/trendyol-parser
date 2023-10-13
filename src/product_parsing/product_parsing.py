@@ -1,8 +1,11 @@
-import requests
-import re
 import json
+import re
 
-from core import config
+import requests
+
+from core import (
+    config,
+)
 
 
 def parse_product(url: str, headers: dict):
@@ -24,7 +27,7 @@ def parse_product(url: str, headers: dict):
 def send_product(product):
     data = dict(
         name=product.get('name'),
-        price=product.get('price', {}).get('originalPrice', {}),
+        price=product.get('price', {}).get('originalPrice', {}).get('value'),
         external_id=product.get('id'),
         provider_category_external_id=product.get('originalCategory', {}).get('id'),
     )
