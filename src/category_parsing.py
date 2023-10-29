@@ -3,16 +3,13 @@ import re
 
 import requests
 
-from core import (
-    config,
-)
-from product_parsing.product_parsing import (
+from product_parsing import (
     parse_product,
 )
 
 
-def parse_category(url: str, headers: dict):
-    response = requests.get(url, headers=headers)
+def parse_category(url: str):
+    response = requests.get(url)
     pattern = r'__SEARCH_APP_INITIAL_STATE__=(?P<json_data>.*?);window'
     match = re.search(pattern, response.text)
 
