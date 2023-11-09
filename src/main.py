@@ -9,6 +9,9 @@ from category_parsing import (
 from product_parsing import (
     parse_product,
 )
+from trendyol.services import (
+    Parser,
+)
 
 
 def main():
@@ -17,8 +20,11 @@ def main():
     products_url = config.mb_target_products_url
     products = requests.get(products_url).json()
 
+    parser = Parser()
+
     print('Парсинг товаров...')
     for product in products:
+        parser.parse_product_by_url(product.get('url'))
         parse_product(url=product.get('url'))
 
     categories_url = config.mb_target_categories_url

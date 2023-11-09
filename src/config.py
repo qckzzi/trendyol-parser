@@ -31,3 +31,4 @@ if not marketplace_id:
 # Trendyol
 trendyol_domain = 'https://www.trendyol.com/'
 trendyol_images_domain = 'https://cdn.dsmcdn.com/'
+trendyol_product_detail_url = 'https://public.trendyol.com/discovery-web-productgw-service/api/productDetail/'
