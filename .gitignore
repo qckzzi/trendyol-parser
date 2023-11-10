@@ -8,3 +8,4 @@ venv/
 *~
 .vscode/
 *.jpg
+.python-version
