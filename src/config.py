@@ -14,10 +14,12 @@ mb_domain = os.getenv('MB_DOMAIN')
 if not mb_domain:
     raise ValueError('Не задан домен Markets-Bridge.')
 
+mb_categories_url = mb_domain + 'api/v1/provider/categories/'
 mb_products_url = mb_domain + 'api/v1/provider/products/'
 mb_characteristics_url = mb_domain + 'api/v1/provider/characteristics/'
 mb_characteristic_values_url = mb_domain + 'api/v1/provider/characteristic_values/'
 mb_product_images_url = mb_domain + 'api/v1/provider/product_images/'
+mb_brands_url = mb_domain + 'api/v1/provider/brands/'
 
 mb_target_products_url = mb_domain + 'api/v1/parser_targets/products/'
 mb_target_categories_url = mb_domain + 'api/v1/parser_targets/categories/'
@@ -29,6 +31,5 @@ if not marketplace_id:
 
 
 # Trendyol
-trendyol_domain = 'https://www.trendyol.com/'
-trendyol_images_domain = 'https://cdn.dsmcdn.com/'
-trendyol_product_detail_url = 'https://public.trendyol.com/discovery-web-productgw-service/api/productDetail/'
+trendyol_domain = 'https://www.trendyol.com'
+trendyol_images_domain = 'https://cdn.dsmcdn.com'

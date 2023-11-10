@@ -8,47 +8,43 @@ from decimal import (
 
 
 @dataclass
-class CategoryDTO:
+class TrendyolCategoryDTO:
     id: int
     name: str
 
 
 @dataclass
-class AttributeDTO:
+class TrendyolAttributeDTO:
     id: int
     name: str
 
 
 @dataclass
-class AttributeValueDTO:
+class TrendyolAttributeValueDTO:
     id: int
     value: str
-    attribute: AttributeDTO
+    attribute: TrendyolAttributeDTO
 
 
 @dataclass
-class ProductVariantDTO:
-    item_number: int
-    stock_quantity: int
-    price: float | Decimal
-    value: str
-
-
-@dataclass
-class BrandDTO:
+class TrendyolBrandDTO:
     id: int
     name: str
     path: str
 
 
 @dataclass
-class ProductDTO:
+class TrendyolProductDTO:
     id: int
     name: str
     product_group_id: int
     url: str
     product_code: str
-    category: CategoryDTO
-    brand: BrandDTO
-    variants: list[ProductVariantDTO] = field(default_factory=list)
-    values: list[AttributeValueDTO] = field(default_factory=list)
+    category: TrendyolCategoryDTO
+    brand: TrendyolBrandDTO
+    item_number: int
+    stock_quantity: int
+    price: int | float | Decimal
+    discounted_price: int | float | Decimal
+    image_urls: list[str] = field(default_factory=list)
+    values: list[TrendyolAttributeValueDTO] = field(default_factory=list)
