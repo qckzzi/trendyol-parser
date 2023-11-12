@@ -1,5 +1,9 @@
 import json
+import logging
 import re
+from urllib.parse import (
+    urlparse,
+)
 
 import requests
 
@@ -30,6 +34,8 @@ class Parser:
 
     @classmethod
     def parse_product_urls_by_category_url(cls, url: str) -> list[str]:
+        logging.info(f'Product parsing by url: {url}')
+
         response = requests.get(url)
         match = re.search(cls.category_re_pattern, response.text)
 
@@ -43,6 +49,34 @@ class Parser:
         marketplace_url = config.trendyol_domain
 
         return [f'{marketplace_url}{product["url"]}' for product in products]
+
+    # TODO: DRY
+    @classmethod
+    def parse_product_urls_by_product_card_url(cls, url: str) -> list[str]:
+        response = requests.get(url)
+        match = re.search(cls.product_re_pattern, response.text)
+
+        if not match:
+            raise NotFoundDataError(f'Product at url {url} not found.')
+
+        raw_json = match.group('json_data')
+        json_object = json.loads(raw_json)
+        raw_product = json_object.get('product')
+        product_group_response = requests.get(f'{config.trendyol_product_group_url}{raw_product["productGroupId"]}')
+
+        product_urls = []
+
+        slicing_attributes = product_group_response.json()['result']['slicingAttributes']
+
+        url_query = urlparse(url).query
+
+        for slicing_attribute in slicing_attributes:
+            for attribute in slicing_attribute['attributes']:
+                for attribute_content in attribute['contents']:
+                    product_url = f'{config.trendyol_domain}{attribute_content["url"]}?{url_query}'
+                    product_urls.append(product_url)
+
+        return product_urls
 
     # TODO: Декомпозировать метод
     @classmethod

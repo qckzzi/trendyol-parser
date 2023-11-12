@@ -1,3 +1,4 @@
+import logging
 import uuid
 from dataclasses import (
     asdict,
@@ -116,6 +117,8 @@ class Sender:
 
     @classmethod
     def send_product(cls, product: MBProductDTO):
+        logging.info(f'Sending "{product.name}" product.')
+
         return cls._send_object(
             product,
             url=config.mb_products_url,
@@ -123,6 +126,8 @@ class Sender:
 
     @classmethod
     def send_category(cls, category: MBCategoryDTO):
+        logging.info(f'Sending "{category.name}" category.')
+
         return cls._send_object(
             category,
             url=config.mb_categories_url,
@@ -130,6 +135,8 @@ class Sender:
 
     @classmethod
     def send_characteristic(cls, characteristic: MBCharacteristicDTO):
+        logging.info(f'Sending "{characteristic.name}" characteristic.')
+
         return cls._send_object(
             characteristic,
             url=config.mb_characteristics_url,
@@ -137,6 +144,8 @@ class Sender:
 
     @classmethod
     def send_characteristic_value(cls, value: MBCharacteristicValueDTO):
+        logging.info(f'Sending "{value.value}" value.')
+
         return cls._send_object(
             value,
             url=config.mb_characteristic_values_url,
@@ -144,6 +153,8 @@ class Sender:
 
     @classmethod
     def send_brand(cls, brand: MBBrandDTO):
+        logging.info(f'Sending "{brand.name}" brand.')
+
         return cls._send_object(
             brand,
             url=config.mb_brands_url,
@@ -151,14 +162,17 @@ class Sender:
 
     @classmethod
     def send_image(cls, image_url: str, product_id: int):
+        logging.info(f'Receipt and sending image by url: {image_url}.')
+
         try:
-            trendyol_image_response = requests.get(image_url)
+            image_response = requests.get(image_url)
         except (requests.HTTPError, requests.ConnectionError, requests.ConnectTimeout):
+            logging.error('An error occurred while receiving the image. Try again...')
             cls.send_image(image_url, product_id)
 
             return
         else:
-            image = trendyol_image_response.content
+            image = image_response.content
 
         response = requests.post(
             config.mb_product_images_url,
