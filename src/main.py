@@ -60,33 +60,36 @@ def product_card_processing(url: str):
 
 
 def product_processing(url: str):
-    formatter = Formatter()
+    try:
+        formatter = Formatter()
 
-    trendyol_product = Parser.parse_product_by_url(url)
+        trendyol_product = Parser.parse_product_by_url(url)
 
-    formatter.trendyol_product = trendyol_product
+        formatter.trendyol_product = trendyol_product
 
-    mb_category = formatter.get_category()
-    Sender.send_category(mb_category)
+        mb_category = formatter.get_category()
+        Sender.send_category(mb_category)
 
-    mb_characteristics = formatter.get_characteristics()
-    for char in mb_characteristics:
-        Sender.send_characteristic(char)
+        mb_characteristics = formatter.get_characteristics()
+        for char in mb_characteristics:
+            Sender.send_characteristic(char)
 
-    mb_values = formatter.get_characteristic_values()
-    for value in mb_values:
-        Sender.send_characteristic_value(value)
+        mb_values = formatter.get_characteristic_values()
+        for value in mb_values:
+            Sender.send_characteristic_value(value)
 
-    mb_brand = formatter.get_brand()
-    Sender.send_brand(mb_brand)
+        mb_brand = formatter.get_brand()
+        Sender.send_brand(mb_brand)
 
-    mb_product = formatter.get_product()
-    existed_product_response = Sender.send_product(mb_product)
+        mb_product = formatter.get_product()
+        existed_product_response = Sender.send_product(mb_product)
 
-    if existed_product_response.status_code == 201:
-        product = existed_product_response.json()
-        for image_url in trendyol_product.image_urls:
-            Sender.send_image(image_url, product['id'])
+        if existed_product_response.status_code == 201:
+            product = existed_product_response.json()
+            for image_url in trendyol_product.image_urls:
+                Sender.send_image(image_url, product['id'])
+    except Exception as e:
+        logging.exception(e)
 
 
 if __name__ == '__main__':
