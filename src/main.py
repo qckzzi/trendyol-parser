@@ -1,44 +1,45 @@
 #!/usr/bin/env python
+import json
 import logging
 
-import requests
+import pika
 
-import config
 from markets_bridge.services import (
     Formatter,
     Sender,
+)
+from trendyol.exceptions import (
+    NotFoundDataError,
 )
 from trendyol.services import (
     Parser,
 )
 
 
-def main():
-    # TODO: Получать урлы из очереди, а не забирать запросом самостоятельно
+def callback(ch, method, properties, body):
+    message = json.loads(body)
 
-    target_products = requests.get(config.mb_target_products_url).json()
+    try:
+        processing_type = message['type']
+        processing_url = message['url']
+    except KeyError as e:
+        logging.exception(f'Body validation error: {e}')
 
-    for product in target_products:
-        logging.info(f'Process product by url {product["url"]}...')
+        return
 
-        try:
-            product_processing(url=product['url'])
-        except Exception as e:
-            logging.exception(e)
-        else:
-            logging.info(f'Success!')
+    logging.info(f'{processing_type.lower().capitalize()} was received for parsing. URL: {processing_url}')
 
-    target_categories = requests.get(config.mb_target_categories_url).json()
-    
-    for category in target_categories:
-        logging.info(f'Process category by url {category["url"]}...')
+    processing_map = {
+        'PRODUCT': product_card_processing,
+        'CATEGORY': category_processing,
+    }
 
-        try:
-            category_processing(url=category['url'])
-        except Exception as e:
-            logging.exception(e)
-        else:
-            logging.info(f'Success!')
+    processing_function = processing_map[processing_type]
+
+    try:
+        processing_function(processing_url)
+    except NotFoundDataError as e:
+        logging.exception(e)
 
 
 def category_processing(url: str):
@@ -48,10 +49,21 @@ def category_processing(url: str):
         product_processing(product_url)
 
 
+def product_card_processing(url: str):
+    trendyol_product_urls = Parser.parse_product_urls_by_product_card_url(url)
+
+    if not trendyol_product_urls:
+        product_processing(url)
+
+    for product_url in trendyol_product_urls:
+        product_processing(product_url)
+
+
 def product_processing(url: str):
     formatter = Formatter()
 
     trendyol_product = Parser.parse_product_by_url(url)
+
     formatter.trendyol_product = trendyol_product
 
     mb_category = formatter.get_category()
@@ -78,9 +90,16 @@ def product_processing(url: str):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s | %(levelname)s | %(message)s')
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(levelname)s | %(message)s')
+
+    connection_parameters = pika.ConnectionParameters(host='localhost', heartbeat=300, blocked_connection_timeout=300)
+    connection = pika.BlockingConnection(connection_parameters)
+    channel = connection.channel()
+    channel.queue_declare('parsing')
+    channel.basic_consume('parsing', callback, auto_ack=True)
 
     try:
-        main()
-    except Exception as e:
-        logging.exception(e)
+        channel.start_consuming()
+    except KeyboardInterrupt:
+        channel.close()
+        connection.close()
