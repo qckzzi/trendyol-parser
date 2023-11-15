@@ -12,7 +12,7 @@ load_dotenv()
 mb_domain = os.getenv('MB_DOMAIN')
 
 if not mb_domain:
-    raise ValueError('Не задан домен Markets-Bridge.')
+    raise ValueError('MB_DOMAIN not set')
 
 mb_categories_url = mb_domain + 'api/v1/provider/categories/'
 mb_products_url = mb_domain + 'api/v1/provider/products/'
@@ -27,7 +27,18 @@ mb_target_categories_url = mb_domain + 'api/v1/parser_targets/categories/'
 marketplace_id = int(os.getenv('TRENDYOL_ID', default=0))
 
 if not marketplace_id:
-    raise ValueError('Не задан ID записи маркетплейса "Trendyol", находящейся в БД Markets-Bridge.')
+    raise ValueError('TRENDYOL_ID not set')
+
+mb_login = os.getenv('MB_LOGIN')
+mb_password = os.getenv('MB_PASSWORD')
+
+if not (mb_login and mb_password):
+    raise ValueError('MB_LOGIN and MB_PASSWORD not set for Markets-Bridge authentication')
+
+mb_token_url = mb_domain + 'api/token/'
+mb_token_refresh_url = mb_token_url + 'refresh/'
+mb_system_environments_url = mb_domain + 'api/v1/common/system_environments/'
+mb_logs_url = mb_domain + 'api/v1/common/logs/'
 
 
 # Trendyol
