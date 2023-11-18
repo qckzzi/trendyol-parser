@@ -1,6 +1,8 @@
 import json
-import logging
 import re
+from math import (
+    ceil,
+)
 from urllib.parse import (
     urlparse,
 )
@@ -34,21 +36,34 @@ class Parser:
 
     @classmethod
     def parse_product_urls_by_category_url(cls, url: str) -> list[str]:
-        logging.info(f'Product parsing by url: {url}')
+        category = cls.parse_category_by_url(url)
 
-        response = requests.get(url)
+        products = category['products']
+        pages_count = ceil(category['totalCount'] / category['offset'])
+
+        for page in range(2, pages_count+1):
+            category = cls.parse_category_by_url(url, page=page)
+            products.extend(category['products'])
+
+        marketplace_url = config.trendyol_domain
+
+        return [f'{marketplace_url}{product["url"]}' for product in products]
+
+    @classmethod
+    def parse_category_by_url(cls, url: str, page: int = None) -> dict:
+        request_params = {'pi': page} if page else {}
+
+        response = requests.get(url, params=request_params)
+        response.raise_for_status()
+
         match = re.search(cls.category_re_pattern, response.text)
 
         if not match:
             raise NotFoundDataError(f'Category at url {url} not found.')
 
         raw_json = match.group('json_data')
-        json_object = json.loads(raw_json)
-        products = json_object['products']
 
-        marketplace_url = config.trendyol_domain
-
-        return [f'{marketplace_url}{product["url"]}' for product in products]
+        return json.loads(raw_json)
 
     # TODO: DRY
     @classmethod

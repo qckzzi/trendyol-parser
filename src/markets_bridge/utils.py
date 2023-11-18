@@ -262,7 +262,9 @@ class Accesser(Singleton):
 
         if response.status_code == 401:
             self.update_jwt()
-            response = requests.post(config.mb_token_refresh_url, json=body)
+            self.update_access_token()
+
+            return
 
         response.raise_for_status()
 
