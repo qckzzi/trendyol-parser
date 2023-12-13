@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 import json
 import logging
+import traceback
 
 import pika
 
+import config
 from markets_bridge.utils import (
     Formatter,
     Sender,
@@ -30,15 +32,11 @@ def callback(ch, method, properties, body):
 
         processing_function = processing_map[processing_type]
         processing_function(processing_url)
-    except KeyError as e:
-        error = f'Body validation error: {e}'
-        write_log_entry(error)
-        logging.error(error)
-        return
     except Exception as e:
-        error = f'There was a problem: {e}'
+        error = f'There was a problem ({e.__class__.__name__}): {e}'
         write_log_entry(error)
         logging.exception(error)
+        print(traceback.format_exc())
         return
 
 
@@ -95,8 +93,8 @@ if __name__ == '__main__':
     connection_parameters = pika.ConnectionParameters(host='localhost', heartbeat=300, blocked_connection_timeout=300)
     with pika.BlockingConnection(connection_parameters) as connection:
         channel = connection.channel()
-        channel.queue_declare('parsing')
-        channel.basic_consume('parsing', callback, auto_ack=True)
+        channel.queue_declare(f'parsing.{config.marketplace_id}')
+        channel.basic_consume(f'parsing.{config.marketplace_id}', callback, auto_ack=True)
 
         try:
             channel.start_consuming()
