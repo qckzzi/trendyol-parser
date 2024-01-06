@@ -46,3 +46,6 @@ trendyol_domain = 'https://www.trendyol.com'
 trendyol_images_domain = 'https://cdn.dsmcdn.com'
 trendyol_product_group_url = 'https://public.trendyol.com/discovery-web-websfxproductgroups-santral/api/v1/product-groups/'
 
+
+# Sentry
+sentry_dsn = os.getenv('SENTRY_DSN')
