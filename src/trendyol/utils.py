@@ -100,7 +100,14 @@ class Parser:
         match = re.search(cls.product_re_pattern, response.text)
 
         if not match:
-            raise NotFoundDataError(f'Product at url {url} not found.')
+            for _ in range(3):
+                response = requests.get(url)
+                match = re.search(cls.product_re_pattern, response.text)
+
+                if match:
+                    break
+            else:
+                raise NotFoundDataError(f'Product at url {url} not found.')
 
         raw_json = match.group('json_data')
         json_object = json.loads(raw_json)
