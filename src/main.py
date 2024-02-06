@@ -56,7 +56,11 @@ def product_card_processing(url: str):
         product_processing(url)
 
     for product_url in trendyol_product_urls:
-        product_processing(product_url)
+        try:
+            product_processing(product_url)
+        except Exception as e:
+            handle_exception(e)
+            continue
 
 
 def product_processing(url: str):

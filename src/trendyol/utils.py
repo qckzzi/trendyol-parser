@@ -39,7 +39,7 @@ class Parser:
         category = cls.parse_category_by_url(url)
 
         products = category['products']
-        pages_count = ceil(category['totalCount'] / category['offset'])
+        pages_count = ceil(category['totalCount'] / category['configuration']['searchPageItemCount'])
 
         for page in range(2, pages_count+1):
             category = cls.parse_category_by_url(url, page=page)
